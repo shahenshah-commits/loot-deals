@@ -46,6 +46,16 @@
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* मोबाइल रिस्पॉन्सिव फिक्स */
+    @media (max-width: 640px) {
+        body {
+            font-size: 14px;
+        }
+        .max-w-7xl, .max-w-4xl, .max-w-2xl {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+    }
     </style>
 </head>
 <body class="bg-[#070a13] text-slate-100 min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
