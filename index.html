@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>loot-deals — Smart Shopping & Exclusive Offers</title>
     <meta name="description" content="Discover premium products, curated loot deals, and smart shopping offers.">
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -21,6 +22,7 @@
             }
         }
     </script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
@@ -42,21 +44,24 @@
             border-color: rgba(56, 189, 248, 0.4);
             box-shadow: 0 10px 30px -10px rgba(56, 189, 248, 0.3);
         }
-        /* Hide scrollbar for clean UI */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-[#070a13] text-slate-100 min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
 
+    <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
 
+    <!-- Top Announcement Bar -->
     <div class="bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-xs py-2 px-4 text-center font-medium tracking-wide">
-        ⚡ Super Loot Deals Live! Use Admin Panel to Add Your Custom Product Links Instantly.
+        ⚡ Super Loot Deals Live! Only Admin Can Manage Products with Secure Password.
     </div>
 
+    <!-- Navigation Bar -->
     <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            <!-- Logo -->
             <a href="#" onclick="switchView('home')" class="flex items-center gap-2 group">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 group-hover:scale-105 transition-transform">
                     <i class="fa-solid fa-bolt text-white text-lg"></i>
@@ -67,26 +72,31 @@
                 </div>
             </a>
 
+            <!-- Search Bar (Desktop) -->
             <div class="hidden md:flex flex-1 max-w-md relative">
                 <input type="text" id="global-search" oninput="handleSearch(this.value)" placeholder="Search products, categories, descriptions..." class="w-full bg-slate-900/60 border border-slate-700/60 rounded-xl px-4 py-2.5 pl-11 text-sm focus:outline-none focus:border-sky-500 transition-colors">
                 <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400 text-sm"></i>
             </div>
 
+            <!-- Nav Actions -->
             <div class="flex items-center gap-3">
                 <button onclick="switchView('home')" class="hidden sm:inline-flex px-3 py-2 text-sm font-medium hover:text-sky-400 transition-colors">Home</button>
                 <button onclick="scrollToSection('products-section')" class="hidden sm:inline-flex px-3 py-2 text-sm font-medium hover:text-sky-400 transition-colors">Products</button>
                 
+                <!-- Wishlist Toggle -->
                 <button onclick="switchView('wishlist')" class="relative p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all text-slate-300 hover:text-sky-400" title="Wishlist">
                     <i class="fa-solid fa-heart text-lg"></i>
                     <span id="wishlist-badge" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
                 </button>
 
-                <button onclick="toggleAdminModal(true)" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-sm shadow-lg shadow-sky-500/20 transition-all">
-                    <i class="fa-solid fa-gear"></i>
-                    <span class="hidden sm:inline">Admin Panel</span>
+                <!-- Admin Access Button (Secured) -->
+                <button onclick="requestAdminAccess()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-sm shadow-lg shadow-sky-500/20 transition-all">
+                    <i class="fa-solid fa-lock text-xs"></i>
+                    <span class="hidden sm:inline">Admin</span>
                 </button>
             </div>
         </div>
+        <!-- Mobile Search Bar -->
         <div class="md:hidden px-4 pb-3">
             <div class="relative w-full">
                 <input type="text" id="mobile-search" oninput="handleSearch(this.value)" placeholder="Search products..." class="w-full bg-slate-900/60 border border-slate-700/60 rounded-xl px-4 py-2 pl-10 text-sm focus:outline-none focus:border-sky-500">
@@ -95,10 +105,13 @@
         </div>
     </header>
 
+    <!-- Main Container Views -->
     <main class="flex-1">
 
+        <!-- HOME VIEW -->
         <div id="view-home" class="space-y-16 pb-16">
             
+            <!-- Hero Section -->
             <section class="relative overflow-hidden pt-12 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 <div class="absolute inset-0 -z-10 flex items-center justify-center opacity-30 pointer-events-none">
                     <div class="w-[500px] h-[500px] bg-gradient-to-tr from-sky-600/30 to-purple-600/30 rounded-full blur-3xl"></div>
@@ -117,37 +130,39 @@
                         <button onclick="scrollToSection('products-section')" class="px-8 py-3.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold shadow-lg shadow-sky-500/25 transition-all">
                             Explore Products <i class="fa-solid fa-arrow-down ml-2"></i>
                         </button>
-                        <button onclick="toggleAdminModal(true)" class="px-8 py-3.5 rounded-xl glass-panel hover:bg-slate-800/80 font-bold transition-all">
-                            + Add New Product
+                        <button onclick="requestAdminAccess()" class="px-8 py-3.5 rounded-xl glass-panel hover:bg-slate-800/80 font-bold transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-lock text-xs text-sky-400"></i> + Add New Product
                         </button>
                     </div>
                 </div>
             </section>
 
+            <!-- Category Section -->
             <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
                     <i class="fa-solid fa-shapes text-sky-400"></i> Explore Categories
                 </h2>
-                <div id="category-filters" class="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2">
-                    </div>
+                <div id="category-filters" class="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2"></div>
             </section>
 
+            <!-- Featured Products Section -->
             <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-bold flex items-center gap-2">
                         <i class="fa-solid fa-crown text-amber-400"></i> Featured Loot Deals
                     </h2>
                 </div>
-                <div id="featured-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    </div>
+                <div id="featured-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
             </section>
 
+            <!-- All / Latest Products Section -->
             <section id="products-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                     <div>
                         <h2 class="text-2xl font-bold tracking-tight" id="section-title">All Latest Products</h2>
                         <p class="text-sm text-slate-400">Browse all available curated items with verified external links.</p>
                     </div>
+                    <!-- Sorting -->
                     <div class="flex items-center gap-3">
                         <span class="text-xs text-slate-400">Sort By:</span>
                         <select id="sort-select" onchange="handleSort(this.value)" class="bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-sky-500">
@@ -159,9 +174,9 @@
                     </div>
                 </div>
 
-                <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    </div>
+                <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
 
+                <!-- Empty State -->
                 <div id="empty-state" class="hidden text-center py-20 space-y-4">
                     <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-400 text-2xl">
                         <i class="fa-solid fa-box-open"></i>
@@ -172,23 +187,24 @@
                 </div>
             </section>
 
+            <!-- Recently Viewed Section -->
             <section id="recently-viewed-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 hidden pt-8 border-t border-slate-800">
                 <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
                     <i class="fa-solid fa-clock-rotate-left text-sky-400"></i> Recently Viewed Products
                 </h2>
-                <div id="recently-viewed-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    </div>
+                <div id="recently-viewed-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
             </section>
         </div>
 
+        <!-- PRODUCT DETAILS VIEW -->
         <div id="view-details" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 hidden">
             <button onclick="switchView('home')" class="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-sky-400 hover:text-sky-300">
                 <i class="fa-solid fa-arrow-left"></i> Back to Products
             </button>
-            <div id="product-details-content" class="glass-panel rounded-3xl p-6 sm:p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
-                </div>
+            <div id="product-details-content" class="glass-panel rounded-3xl p-6 sm:p-10 grid grid-cols-1 md:grid-cols-2 gap-8"></div>
         </div>
 
+        <!-- WISHLIST VIEW -->
         <div id="view-wishlist" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 hidden space-y-6">
             <div class="flex items-center justify-between">
                 <div>
@@ -197,26 +213,27 @@
                 </div>
                 <button onclick="switchView('home')" class="text-sm text-sky-400 font-semibold hover:underline">Continue Shopping</button>
             </div>
-            <div id="wishlist-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                </div>
+            <div id="wishlist-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
         </div>
 
     </main>
 
+    <!-- ADMIN / PRODUCT MANAGEMENT MODAL (Password Protected) -->
     <div id="admin-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden overflow-y-auto">
         <div class="glass-panel w-full max-w-2xl rounded-3xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto space-y-6 border border-slate-700 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
-                        <i class="fa-solid fa-sliders"></i>
+                        <i class="fa-solid fa-shield-halved"></i>
                     </div>
-                    <h3 class="text-lg font-bold" id="admin-modal-title">Product Management Dashboard</h3>
+                    <h3 class="text-lg font-bold" id="admin-modal-title">Admin Dashboard (Secured)</h3>
                 </div>
                 <button onclick="toggleAdminModal(false)" class="text-slate-400 hover:text-white p-2">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
 
+            <!-- Tabs or Add Form Toggle -->
             <div class="flex items-center justify-between gap-4">
                 <button onclick="resetProductForm(); document.getElementById('product-form-container').classList.remove('hidden'); document.getElementById('admin-products-list').classList.add('hidden')" class="px-4 py-2 bg-sky-500 hover:bg-sky-400 text-white rounded-xl text-sm font-semibold transition-colors">
                     <i class="fa-solid fa-plus mr-1"></i> Add New Product
@@ -226,6 +243,7 @@
                 </button>
             </div>
 
+            <!-- Add / Edit Product Form -->
             <div id="product-form-container" class="space-y-4">
                 <form id="product-form" onsubmit="handleProductFormSubmit(event)" class="space-y-4">
                     <input type="hidden" id="edit-product-id">
@@ -295,17 +313,18 @@
                 </form>
             </div>
 
+            <!-- Manage Existing Products List -->
             <div id="admin-products-list" class="hidden space-y-4">
                 <div class="relative">
                     <input type="text" id="admin-search" oninput="renderAdminProductsList(this.value)" placeholder="Search products to edit/delete..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 pl-10 text-sm focus:outline-none focus:border-sky-500">
                     <i class="fa-solid fa-search absolute left-3.5 top-3 text-slate-400 text-xs"></i>
                 </div>
-                <div id="admin-items-container" class="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
-                    </div>
+                <div id="admin-items-container" class="space-y-3 max-h-[50vh] overflow-y-auto pr-1"></div>
             </div>
         </div>
     </div>
 
+    <!-- Footer -->
     <footer class="glass-panel border-t border-slate-800 mt-20 py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
             <div class="space-y-4">
@@ -325,7 +344,6 @@
                     <li><a href="#" onclick="switchView('home')" class="hover:text-sky-400">Home</a></li>
                     <li><a href="#products-section" onclick="scrollToSection('products-section')" class="hover:text-sky-400">All Products</a></li>
                     <li><a href="#" onclick="switchView('wishlist')" class="hover:text-sky-400">My Wishlist</a></li>
-                    <li><a href="#" onclick="toggleAdminModal(true)" class="hover:text-sky-400">Admin Panel</a></li>
                 </ul>
             </div>
             <div>
@@ -353,12 +371,17 @@
         </div>
     </footer>
 
+    <!-- Back to Top Button -->
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" id="back-to-top" class="fixed bottom-6 right-6 w-10 h-10 rounded-xl bg-sky-500 text-white shadow-lg flex items-center justify-center opacity-0 pointer-events-none transition-opacity z-30 hover:bg-sky-400">
         <i class="fa-solid fa-arrow-up text-sm"></i>
     </button>
 
+    <!-- JavaScript Application Logic -->
     <script>
-        // Initial Sample Products Data (Fully Customizable via Admin Panel)
+        // Admin Secret 6-Digit Password (Change '243075' to your own custom 6-digit pin if needed)
+        const ADMIN_PIN = "243075";
+
+        // Initial Sample Products Data
         const defaultProducts = [
             {
                 id: "prod_1",
@@ -411,36 +434,9 @@
                 category: "Electronics",
                 productUrl: "https://example.com/product/keyboard",
                 featured: true
-            },
-            {
-                id: "prod_5",
-                name: "Designer Leather Wallet",
-                image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=600&auto=format&fit=crop&q=80",
-                description: "Genuine leather bifold wallet with RFID blocking technology and multiple card slots.",
-                price: "₹499",
-                originalPrice: "₹1,299",
-                discount: "61% OFF",
-                rating: "4.3",
-                category: "Accessories",
-                productUrl: "https://example.com/product/wallet",
-                featured: false
-            },
-            {
-                id: "prod_6",
-                name: "Portable Bluetooth Speaker",
-                image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=600&auto=format&fit=crop&q=80",
-                description: "Waterproof mini wireless speaker delivering crisp 360-degree stereo sound on the go.",
-                price: "₹999",
-                originalPrice: "₹1,999",
-                discount: "50% OFF",
-                rating: "4.5",
-                category: "Gadgets",
-                productUrl: "https://example.com/product/speaker",
-                featured: false
             }
         ];
 
-        // State Management
         let products = JSON.parse(localStorage.getItem('loot_deals_products')) || defaultProducts;
         let wishlist = JSON.parse(localStorage.getItem('loot_deals_wishlist')) || [];
         let recentlyViewed = JSON.parse(localStorage.getItem('loot_deals_recent')) || [];
@@ -449,7 +445,6 @@
 
         const categories = ['All', 'Electronics', 'Fashion', 'Gadgets', 'Home', 'Beauty', 'Accessories', 'Other'];
 
-        // Initialize App on DOM Content Loaded
         document.addEventListener('DOMContentLoaded', () => {
             renderCategories();
             renderProducts();
@@ -457,7 +452,6 @@
             renderRecentlyViewed();
             updateWishlistBadge();
 
-            // Scroll event for back-to-top button
             window.addEventListener('scroll', () => {
                 const btt = document.getElementById('back-to-top');
                 if (window.scrollY > 400) {
@@ -468,18 +462,16 @@
             });
         });
 
-        // Save state to localStorage
         function saveToStorage() {
             localStorage.setItem('loot_deals_products', JSON.stringify(products));
             localStorage.setItem('loot_deals_wishlist', JSON.stringify(wishlist));
             localStorage.setItem('loot_deals_recent', JSON.stringify(recentlyViewed));
         }
 
-        // Toast Notifications
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `glass-panel px-4 py-3 rounded-2xl text-xs font-semibold flex items-center gap-3 shadow-2xl border ${type === 'success' ? 'border-emerald-500/40 text-emerald-300' : 'border-rose-500/40 text-rose-300'} animate-fade-in`;
+            toast.className = `glass-panel px-4 py-3 rounded-2xl text-xs font-semibold flex items-center gap-3 shadow-2xl border ${type === 'success' ? 'border-emerald-500/40 text-emerald-300' : 'border-rose-500/40 text-rose-300'}`;
             toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-circle-exclamation text-rose-400'} text-sm"></i> <span>${message}</span>`;
             container.appendChild(toast);
             setTimeout(() => {
@@ -488,7 +480,17 @@
             }, 3000);
         }
 
-        // Switch Views (Home, Details, Wishlist)
+        // Secure Password Prompt for Admin Panel
+        function requestAdminAccess() {
+            const enteredPin = prompt("Enter 6-Digit Admin PIN to access dashboard:");
+            if (enteredPin === ADMIN_PIN) {
+                toggleAdminModal(true);
+                showToast("Admin access granted successfully!");
+            } else if (enteredPin !== null) {
+                showToast("Incorrect PIN! Access denied.", "error");
+            }
+        }
+
         function switchView(viewName, productId = null) {
             document.getElementById('view-home').classList.add('hidden');
             document.getElementById('view-details').classList.add('hidden');
@@ -508,7 +510,6 @@
             }
         }
 
-        // Render Categories
         function renderCategories() {
             const container = document.getElementById('category-filters');
             container.innerHTML = categories.map(cat => `
@@ -518,7 +519,6 @@
             `).join('');
         }
 
-        // Filter Products by Category
         function filterByCategory(cat) {
             currentCategory = cat;
             renderCategories();
@@ -526,7 +526,6 @@
             renderProducts();
         }
 
-        // Handle Live Search
         function handleSearch(query) {
             searchQuery = query.toLowerCase().trim();
             renderProducts();
@@ -535,12 +534,10 @@
             }
         }
 
-        // Handle Sorting
         function handleSort(sortType) {
             renderProducts(sortType);
         }
 
-        // Render Featured Products
         function renderFeaturedProducts() {
             const container = document.getElementById('featured-products-grid');
             const featured = products.filter(p => p.featured);
@@ -551,7 +548,6 @@
             container.innerHTML = featured.map(p => createProductCardHTML(p)).join('');
         }
 
-        // Render Main Products Grid
         function renderProducts(sortType = 'default') {
             const container = document.getElementById('products-grid');
             const emptyState = document.getElementById('empty-state');
@@ -564,7 +560,6 @@
                 return matchesCat && matchesSearch;
             });
 
-            // Sorting logic
             if (sortType === 'price-low') {
                 filtered.sort((a, b) => parseFloat(a.price.replace(/[^\d.]/g, '')) - parseFloat(b.price.replace(/[^\d.]/g, '')));
             } else if (sortType === 'price-high') {
@@ -583,7 +578,6 @@
             container.innerHTML = filtered.map(p => createProductCardHTML(p)).join('');
         }
 
-        // Helper: Product Card HTML Template
         function createProductCardHTML(p) {
             const isWishlisted = wishlist.some(item => item.id === p.id);
             return `
@@ -621,12 +615,10 @@
             `;
         }
 
-        // Open Product Details View & Track Recently Viewed
         function openProductDetails(id) {
             const product = products.find(p => p.id === id);
             if (!product) return;
 
-            // Add to recently viewed (prevent duplicates, max 4)
             recentlyViewed = recentlyViewed.filter(p => p.id !== id);
             recentlyViewed.unshift(product);
             if (recentlyViewed.length > 4) recentlyViewed.pop();
@@ -636,14 +628,10 @@
             switchView('details', id);
         }
 
-        // Render Product Details View Content
         function renderProductDetails(id) {
             const p = products.find(p => p.id === id);
             const container = document.getElementById('product-details-content');
-            if (!p) {
-                container.innerHTML = `<p class="text-center col-span-full">Product not found.</p>`;
-                return;
-            }
+            if (!p) return;
 
             const isWishlisted = wishlist.some(item => item.id === p.id);
 
@@ -673,13 +661,11 @@
                         <button onclick="toggleWishlist('${p.id}')" class="w-full py-3 rounded-xl glass-panel hover:bg-slate-800 font-semibold text-sm flex items-center justify-center gap-2 transition-colors">
                             <i class="fa-${isWishlisted ? 'solid text-rose-500' : 'regular'} fa-heart"></i> ${isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
                         </button>
-                        <p class="text-[10px] text-slate-400 text-center"><i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i> Secure external redirect to official partner website.</p>
                     </div>
                 </div>
             `;
         }
 
-        // Render Recently Viewed Products
         function renderRecentlyViewed() {
             const container = document.getElementById('recently-viewed-container');
             const grid = document.getElementById('recently-viewed-grid');
@@ -691,7 +677,6 @@
             grid.innerHTML = recentlyViewed.map(p => createProductCardHTML(p)).join('');
         }
 
-        // Wishlist Toggle
         function toggleWishlist(id, event) {
             if (event) event.stopPropagation();
             const product = products.find(p => p.id === id);
@@ -713,7 +698,6 @@
             }
         }
 
-        // Update Wishlist Badge
         function updateWishlistBadge() {
             const badge = document.getElementById('wishlist-badge');
             if (wishlist.length > 0) {
@@ -724,22 +708,19 @@
             }
         }
 
-        // Render Wishlist View
         function renderWishlist() {
             const grid = document.getElementById('wishlist-grid');
             if (wishlist.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-400">Your wishlist is empty. Browse and save products!</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-400">Your wishlist is empty.</div>`;
                 return;
             }
             grid.innerHTML = wishlist.map(p => createProductCardHTML(p)).join('');
         }
 
-        // Track Click (Safety / Analytics hook)
         function trackClick(id) {
             showToast('Redirecting securely to product page...', 'success');
         }
 
-        // Admin Modal Controls
         function toggleAdminModal(show) {
             const modal = document.getElementById('admin-modal');
             if (show) {
@@ -750,17 +731,15 @@
             }
         }
 
-        // Reset Product Form
         function resetProductForm() {
             document.getElementById('product-form').reset();
             document.getElementById('edit-product-id').value = '';
             document.getElementById('form-submit-btn').innerText = 'Save Product';
-            document.getElementById('admin-modal-title').innerText = 'Product Management Dashboard';
+            document.getElementById('admin-modal-title').innerText = 'Admin Dashboard (Secured)';
             document.getElementById('product-form-container').classList.remove('hidden');
             document.getElementById('admin-products-list').classList.add('hidden');
         }
 
-        // Handle Product Form Submission (Add / Edit)
         function handleProductFormSubmit(event) {
             event.preventDefault();
 
@@ -776,23 +755,20 @@
             const productUrl = document.getElementById('p-url').value.trim();
             const featured = document.getElementById('p-featured').checked;
 
-            // Simple URL Validation
             try {
                 new URL(image);
                 new URL(productUrl);
             } catch (_) {
-                showToast('Please enter valid URLs for image and product link.', 'error');
+                showToast('Please enter valid URLs.', 'error');
                 return;
             }
 
             if (editId) {
-                // Edit existing
                 products = products.map(p => p.id === editId ? {
                     ...p, name, category, image, description, price, originalPrice, discount, rating, productUrl, featured
                 } : p);
                 showToast('Product updated successfully!');
             } else {
-                // Add new
                 const newProduct = {
                     id: 'prod_' + Date.now(),
                     name, category, image, description, price, originalPrice, discount, rating, productUrl, featured
@@ -807,11 +783,9 @@
             toggleAdminModal(false);
         }
 
-        // Render Admin Products List for Management (Edit/Delete)
         function renderAdminProductsList(query = '') {
             const container = document.getElementById('admin-items-container');
             const q = query.toLowerCase().trim();
-
             const filtered = products.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
 
             if (filtered.length === 0) {
@@ -836,7 +810,6 @@
             `).join('');
         }
 
-        // Load Product into Form for Editing
         function loadProductForEdit(id) {
             const p = products.find(item => item.id === id);
             if (!p) return;
@@ -859,7 +832,6 @@
             document.getElementById('admin-products-list').classList.add('hidden');
         }
 
-        // Delete Product
         function deleteProduct(id) {
             if (confirm('Are you sure you want to delete this product?')) {
                 products = products.filter(p => p.id !== id);
@@ -873,7 +845,6 @@
             }
         }
 
-        // Reset Filters Helper
         function resetFilters() {
             currentCategory = 'All';
             searchQuery = '';
@@ -883,15 +854,11 @@
             renderProducts();
         }
 
-        // Smooth Scroll Helper
         function scrollToSection(id) {
             const el = document.getElementById(id);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth' });
-            }
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Info Modal Helper for Footer Links
         function showInfoModal(title, text) {
             alert(`${title}\n\n${text}`);
         }
