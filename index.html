@@ -1,932 +1,745 @@
 <!DOCTYPE html>
-<html lang="hi" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>loot-deals — Smart Shopping & Exclusive Offers</title>
-    <meta name="description" content="Discover premium products, curated loot deals, and smart shopping offers.">
+    <title>Loot-Deals | Smart Shopping & Admin Panel</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        darkBg: '#090d16',
-                        cardBg: 'rgba(255, 255, 255, 0.03)',
-                        cardBorder: 'rgba(255, 255, 255, 0.08)',
-                        accentGlow: '#38bdf8',
+                        darkbg: '#0b0f19',
+                        cardbg: '#111827',
+                        accent: '#06b6d4',
+                        accenthover: '#0891b2'
                     }
                 }
             }
         }
     </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+        .glass-card {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .glass-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(56, 189, 248, 0.4);
-            box-shadow: 0 10px 30px -10px rgba(56, 189, 248, 0.3);
-        }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
     </style>
 </head>
-<body class="bg-[#070a13] text-slate-100 min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
+<body class="bg-darkbg text-gray-100 font-sans antialiased min-h-screen flex flex-col justify-between">
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
-
-    <!-- Top Announcement Bar -->
-    <div class="bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-xs py-2 px-4 text-center font-medium tracking-wide">
-        ⚡ Super Loot Deals Live! Only Admin Can Manage Products with Secure Password.
-    </div>
-
-    <!-- Navigation Bar -->
-    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-            <!-- Logo -->
-            <a href="#" onclick="switchView('home')" class="flex items-center gap-2 group">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 group-hover:scale-105 transition-transform">
-                    <i class="fa-solid fa-bolt text-white text-lg"></i>
-                </div>
-                <div>
-                    <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-sky-400 bg-clip-text text-transparent">loot-deals</span>
-                    <span class="block text-[10px] text-sky-400 font-semibold tracking-widest uppercase">Smart Shopping</span>
-                </div>
-            </a>
-
-            <!-- Search Bar (Desktop) -->
-            <div class="hidden md:flex flex-1 max-w-md relative">
-                <input type="text" id="global-search" oninput="handleSearch(this.value)" placeholder="Search products, categories, descriptions..." class="w-full bg-slate-900/60 border border-slate-700/60 rounded-xl px-4 py-2.5 pl-11 text-sm focus:outline-none focus:border-sky-500 transition-colors">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-50 glass-card border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-cyan-500/30">⚡</div>
+                <span class="text-xl font-extrabold tracking-wide bg-gradient-to-r from-white via-gray-200 to-cyan-400 bg-clip-text text-transparent">loot-deals</span>
             </div>
-
-            <!-- Nav Actions -->
-            <div class="flex items-center gap-3">
-                <button onclick="switchView('home')" class="hidden sm:inline-flex px-3 py-2 text-sm font-medium hover:text-sky-400 transition-colors">Home</button>
-                <button onclick="scrollToSection('products-section')" class="hidden sm:inline-flex px-3 py-2 text-sm font-medium hover:text-sky-400 transition-colors">Products</button>
-                
-                <!-- Wishlist Toggle -->
-                <button onclick="switchView('wishlist')" class="relative p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all text-slate-300 hover:text-sky-400" title="Wishlist">
-                    <i class="fa-solid fa-heart text-lg"></i>
-                    <span id="wishlist-badge" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+                <button onclick="switchTab('home')" id="nav-home" class="text-cyan-400 transition hover:text-cyan-300">Home</button>
+                <button onclick="switchTab('products')" id="nav-products" class="text-gray-300 transition hover:text-cyan-300">Products</button>
+                <button onclick="switchTab('favorites')" id="nav-favorites" class="text-gray-300 transition hover:text-cyan-300">Favorites (<span id="fav-count">0</span>)</button>
+            </nav>
+            <div>
+                <button onclick="switchTab('admin')" id="nav-admin-btn" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-semibold px-4 py-2 rounded-xl transition shadow-lg shadow-cyan-500/20 flex items-center space-x-2 text-sm">
+                    <span>🔒 Admin Panel</span>
                 </button>
-
-                <!-- Admin Access Button (Secured) -->
-                <button onclick="requestAdminAccess()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-sm shadow-lg shadow-sky-500/20 transition-all">
-                    <i class="fa-solid fa-lock text-xs"></i>
-                    <span class="hidden sm:inline">Admin</span>
-                </button>
-            </div>
-        </div>
-        <!-- Mobile Search Bar -->
-        <div class="md:hidden px-4 pb-3">
-            <div class="relative w-full">
-                <input type="text" id="mobile-search" oninput="handleSearch(this.value)" placeholder="Search products..." class="w-full bg-slate-900/60 border border-slate-700/60 rounded-xl px-4 py-2 pl-10 text-sm focus:outline-none focus:border-sky-500">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
             </div>
         </div>
     </header>
 
-    <!-- Main Container Views -->
-    <main class="flex-1">
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
 
-        <!-- HOME VIEW -->
-        <div id="view-home" class="space-y-16 pb-16">
-            
-            <!-- Hero Section -->
-            <section class="relative overflow-hidden pt-12 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-                <div class="absolute inset-0 -z-10 flex items-center justify-center opacity-30 pointer-events-none">
-                    <div class="w-[500px] h-[500px] bg-gradient-to-tr from-sky-600/30 to-purple-600/30 rounded-full blur-3xl"></div>
-                </div>
-                <div class="text-center max-w-3xl mx-auto space-y-6">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-semibold uppercase tracking-wider">
-                        <i class="fa-solid fa-fire"></i> Handpicked Curated Deals
-                    </div>
-                    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight">
-                        Discover Products <span class="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">You’ll Love</span>
-                    </h1>
-                    <p class="text-slate-400 text-base sm:text-lg">
-                        Explore exclusive hand-picked product recommendations with real custom links. Shop smarter, save more.
-                    </p>
-                    <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
-                        <button onclick="scrollToSection('products-section')" class="px-8 py-3.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold shadow-lg shadow-sky-500/25 transition-all">
-                            Explore Products <i class="fa-solid fa-arrow-down ml-2"></i>
-                        </button>
-                        <button onclick="requestAdminAccess()" class="px-8 py-3.5 rounded-xl glass-panel hover:bg-slate-800/80 font-bold transition-all flex items-center gap-2">
-                            <i class="fa-solid fa-lock text-xs text-sky-400"></i> + Add New Product
-                        </button>
+        <!-- HOME TAB -->
+        <section id="tab-home" class="space-y-8">
+            <div class="relative rounded-3xl overflow-hidden glass-card p-8 md:p-12 border border-cyan-500/20 shadow-2xl">
+                <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="max-w-xl space-y-4 relative z-10">
+                    <span class="inline-block bg-cyan-500/10 text-cyan-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-cyan-500/20">🔥 Smart Shopping Experience</span>
+                    <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white">Discover Daily Loot & Best Offers</h1>
+                    <p class="text-gray-400 text-sm sm:text-base">Find handpicked electronics, fashion, and lifestyle gadgets at unbeatable prices.</p>
+                    <div class="pt-2 flex flex-wrap gap-4">
+                        <button onclick="switchTab('products')" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition shadow-lg shadow-cyan-500/20">Explore Products</button>
+                        <button onclick="switchTab('admin')" class="bg-gray-800 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-xl transition border border-gray-700">Open Admin</button>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- Category Section -->
-            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-shapes text-sky-400"></i> Explore Categories
-                </h2>
-                <div id="category-filters" class="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2"></div>
-            </section>
-
-            <!-- Featured Products Section -->
-            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div>
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold flex items-center gap-2">
-                        <i class="fa-solid fa-crown text-amber-400"></i> Featured Loot Deals
+                    <h2 class="text-2xl font-bold flex items-center space-x-2 text-white">
+                        <span>👑 Featured Loot Deals</span>
                     </h2>
+                    <button onclick="switchTab('products')" class="text-cyan-400 text-sm hover:underline font-medium">View All →</button>
                 </div>
                 <div id="featured-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
-            </section>
-
-            <!-- All / Latest Products Section -->
-            <section id="products-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                    <div>
-                        <h2 class="text-2xl font-bold tracking-tight" id="section-title">All Latest Products</h2>
-                        <p class="text-sm text-slate-400">Browse all available curated items with verified external links.</p>
-                    </div>
-                    <!-- Sorting -->
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs text-slate-400">Sort By:</span>
-                        <select id="sort-select" onchange="handleSort(this.value)" class="bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-sky-500">
-                            <option value="default">Default</option>
-                            <option value="price-low">Price: Low to High</option>
-                            <option value="price-high">Price: High to Low</option>
-                            <option value="rating">Highest Rated</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
-
-                <!-- Empty State -->
-                <div id="empty-state" class="hidden text-center py-20 space-y-4">
-                    <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-400 text-2xl">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-                    <h3 class="text-lg font-bold">No Products Found</h3>
-                    <p class="text-sm text-slate-400 max-w-sm mx-auto">We couldn't find any products matching your search or category filter.</p>
-                    <button onclick="resetFilters()" class="px-4 py-2 bg-sky-500 text-white rounded-xl text-sm font-semibold">Reset Filters</button>
-                </div>
-            </section>
-
-            <!-- Recently Viewed Section -->
-            <section id="recently-viewed-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 hidden pt-8 border-t border-slate-800">
-                <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left text-sky-400"></i> Recently Viewed Products
-                </h2>
-                <div id="recently-viewed-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
-            </section>
-        </div>
-
-        <!-- PRODUCT DETAILS VIEW -->
-        <div id="view-details" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 hidden">
-            <button onclick="switchView('home')" class="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-sky-400 hover:text-sky-300">
-                <i class="fa-solid fa-arrow-left"></i> Back to Products
-            </button>
-            <div id="product-details-content" class="glass-panel rounded-3xl p-6 sm:p-10 grid grid-cols-1 md:grid-cols-2 gap-8"></div>
-        </div>
-
-        <!-- WISHLIST VIEW -->
-        <div id="view-wishlist" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 hidden space-y-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold">My Saved Wishlist</h1>
-                    <p class="text-sm text-slate-400">Products you have saved for quick access later.</p>
-                </div>
-                <button onclick="switchView('home')" class="text-sm text-sky-400 font-semibold hover:underline">Continue Shopping</button>
             </div>
-            <div id="wishlist-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
-        </div>
+        </section>
+
+        <!-- PRODUCTS TAB -->
+        <section id="tab-products" class="space-y-6 hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card p-4 rounded-2xl">
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">🔍</span>
+                    <input type="text" id="public-search" placeholder="Search products, categories..." oninput="filterPublicProducts()" class="w-full pl-10 pr-4 py-2.5 bg-gray-900 border border-gray-800 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 text-sm">
+                </div>
+                <div class="flex items-center space-x-3">
+                    <select id="public-category-filter" onchange="filterPublicProducts()" class="bg-gray-900 border border-gray-800 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-cyan-500">
+                        <option value="">All Categories</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Gadgets">Gadgets</option>
+                        <option value="Fashion">Fashion</option>
+                        <option value="Lifestyle">Lifestyle</option>
+                    </select>
+                </div>
+            </div>
+            <div id="all-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- FAVORITES TAB -->
+        <section id="tab-favorites" class="space-y-6 hidden">
+            <h2 class="text-2xl font-bold text-white">❤️ Your Favorite Deals</h2>
+            <div id="favorites-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- ADMIN PANEL TAB -->
+        <section id="tab-admin" class="space-y-8 hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800 pb-6">
+                <div>
+                    <h1 class="text-3xl font-black text-white">Admin Dashboard</h1>
+                    <p class="text-sm text-gray-400">Complete Product & Image Management System</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="openAddProductModal()" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition shadow-lg shadow-cyan-500/20 text-sm flex items-center space-x-2">
+                        <span>➕ Add New Product</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl flex flex-col md:flex-row gap-4 justify-between items-center">
+                <div class="w-full md:w-96 relative">
+                    <input type="text" id="admin-search" placeholder="Search products..." oninput="renderAdminTable()" class="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-800 rounded-xl text-white text-sm focus:outline-none focus:border-cyan-500">
+                    <span class="absolute left-3 top-2.5 text-gray-400 text-sm">🔍</span>
+                </div>
+                <div class="flex items-center space-x-3 w-full md:w-auto">
+                    <select id="admin-category-filter" onchange="renderAdminTable()" class="bg-gray-900 border border-gray-800 text-white text-sm rounded-xl px-4 py-2 focus:outline-none focus:border-cyan-500 w-full md:w-auto">
+                        <option value="">All Categories</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Gadgets">Gadgets</option>
+                        <option value="Fashion">Fashion</option>
+                        <option value="Lifestyle">Lifestyle</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl overflow-hidden border border-gray-800 shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-900/80 border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wider">
+                                <th class="p-4">Image</th>
+                                <th class="p-4">Product Name</th>
+                                <th class="p-4">Category</th>
+                                <th class="p-4">Price</th>
+                                <th class="p-4">Featured</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-product-table-body" class="divide-y divide-gray-800/60 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
 
     </main>
 
-    <!-- ADMIN / PRODUCT MANAGEMENT MODAL (Password Protected) -->
-    <div id="admin-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden overflow-y-auto">
-        <div class="glass-panel w-full max-w-2xl rounded-3xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto space-y-6 border border-slate-700 shadow-2xl">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </div>
-                    <h3 class="text-lg font-bold" id="admin-modal-title">Admin Dashboard (Secured)</h3>
+    <!-- ADD/EDIT PRODUCT MODAL -->
+    <div id="product-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="glass-card w-full max-w-2xl rounded-3xl p-6 md:p-8 border border-gray-700 shadow-2xl relative my-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center pb-4 border-b border-gray-800 mb-6">
+                <h3 id="modal-title" class="text-xl font-bold text-white">Add New Product</h3>
+                <button onclick="closeProductModal()" class="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+
+            <form id="product-form" onsubmit="handleSaveProduct(event)" class="space-y-6">
+                <input type="hidden" id="edit-product-id">
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Product Name *</label>
+                    <input type="text" id="form-name" placeholder="e.g. Wireless ANC Headphones" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500">
+                    <p id="err-name" class="text-red-400 text-xs mt-1 hidden">Please enter a product name.</p>
                 </div>
-                <button onclick="toggleAdminModal(false)" class="text-slate-400 hover:text-white p-2">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
 
-            <!-- Tabs or Add Form Toggle -->
-            <div class="flex items-center justify-between gap-4">
-                <button onclick="resetProductForm(); document.getElementById('product-form-container').classList.remove('hidden'); document.getElementById('admin-products-list').classList.add('hidden')" class="px-4 py-2 bg-sky-500 hover:bg-sky-400 text-white rounded-xl text-sm font-semibold transition-colors">
-                    <i class="fa-solid fa-plus mr-1"></i> Add New Product
-                </button>
-                <button onclick="document.getElementById('admin-products-list').classList.remove('hidden'); document.getElementById('product-form-container').classList.add('hidden'); renderAdminProductsList();" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-sm font-semibold transition-colors">
-                    <i class="fa-solid fa-list mr-1"></i> Manage Existing Products
-                </button>
-            </div>
-
-            <!-- Add / Edit Product Form -->
-            <div id="product-form-container" class="space-y-4">
-                <form id="product-form" onsubmit="handleProductFormSubmit(event)" class="space-y-4">
-                    <input type="hidden" id="edit-product-id">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Product Name *</label>
-                            <input type="text" id="p-name" required placeholder="e.g. Wireless Headphones" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Category *</label>
-                            <select id="p-category" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky-500">
-                                <option value="Electronics">Electronics</option>
-                                <option value="Fashion">Fashion</option>
-                                <option value="Gadgets">Gadgets</option>
-                                <option value="Home">Home</option>
-                                <option value="Beauty">Beauty</option>
-                                <option value="Accessories">Accessories</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Product Image URL *</label>
-                        <input
-                            type="url"
-                            id="p-image"
-                            required
-                            placeholder="https://example.com/image.jpg"
-                            oninput="previewProductImage(this.value)"
-                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky-500"
-                        >
-
-                        <div id="image-preview-box" class="hidden mt-3">
-                            <div class="flex items-center justify-between mb-2">
-                                <p class="text-xs text-slate-400">Image Preview</p>
-                                <button type="button" onclick="clearProductImagePreview()" class="text-[11px] text-slate-500 hover:text-rose-400">Clear Preview</button>
-                            </div>
-                            <div class="w-full h-48 rounded-xl overflow-hidden bg-slate-900 border border-slate-700 flex items-center justify-center">
-                                <img id="image-preview" src="" alt="Product Preview" class="w-full h-full object-cover">
-                            </div>
-                            <p id="image-preview-error" class="hidden text-xs text-rose-400 mt-2">❌ Image load nahi ho rahi. Direct image URL paste karo.</p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Product Description *</label>
-                        <textarea id="p-desc" required rows="2" placeholder="Write a short attractive product description..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky-500"></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Price</label>
-                            <input type="text" id="p-price" placeholder="₹1,499" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-sky-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Original Price</label>
-                            <input type="text" id="p-orig-price" placeholder="₹2,999" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-sky-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Discount %</label>
-                            <input type="text" id="p-discount" placeholder="50% OFF" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-sky-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Rating</label>
-                            <input type="text" id="p-rating" placeholder="4.5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-sky-500">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Custom Product URL / Affiliate Link *</label>
-                        <input type="url" id="p-url" required placeholder="https://earnking.in/xxx or https://flipkart.com/..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky-500">
-                        <span class="text-[10px] text-slate-400 mt-1 block">Your custom product URL is saved securely as entered without any modification.</span>
-                    </div>
-
-                    <div class="flex items-center gap-2 pt-2">
-                        <input type="checkbox" id="p-featured" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-sky-500 focus:ring-sky-500">
-                        <label for="p-featured" class="text-sm font-medium text-slate-300">Set as Featured Product on Homepage</label>
-                    </div>
-
-                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
-                        <button type="button" onclick="toggleAdminModal(false)" class="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-sm font-semibold hover:bg-slate-700">Cancel</button>
-                        <button type="submit" id="form-submit-btn" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-sm font-bold shadow-lg shadow-sky-500/20">Save Product</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Manage Existing Products List -->
-            <div id="admin-products-list" class="hidden space-y-4">
-                <div class="relative">
-                    <input type="text" id="admin-search" oninput="renderAdminProductsList(this.value)" placeholder="Search products to edit/delete..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 pl-10 text-sm focus:outline-none focus:border-sky-500">
-                    <i class="fa-solid fa-search absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Description</label>
+                    <textarea id="form-desc" rows="3" placeholder="Product features and description..." class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"></textarea>
                 </div>
-                <div id="admin-items-container" class="space-y-3 max-h-[50vh] overflow-y-auto pr-1"></div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Price (₹) *</label>
+                        <input type="text" id="form-price" placeholder="₹1499" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Original Price (₹)</label>
+                        <input type="text" id="form-orig-price" placeholder="₹3999" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Discount</label>
+                        <input type="text" id="form-discount" placeholder="62% OFF" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Category *</label>
+                        <select id="form-category" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500">
+                            <option value="">Select Category</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Gadgets">Gadgets</option>
+                            <option value="Fashion">Fashion</option>
+                            <option value="Lifestyle">Lifestyle</option>
+                        </select>
+                        <p id="err-category" class="text-red-400 text-xs mt-1 hidden">Please select a category.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Rating</label>
+                        <input type="text" id="form-rating" placeholder="4.6" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Featured</label>
+                        <div class="flex items-center space-x-3 h-10">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="form-featured" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+                                <span class="ml-3 text-sm font-medium text-gray-300">ON / OFF</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Product URL *</label>
+                    <input type="url" id="form-url" placeholder="https://example.com/product" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500">
+                    <p id="err-url" class="text-red-400 text-xs mt-1 hidden">Please enter a valid product URL.</p>
+                </div>
+
+                <!-- IMAGE UPLOAD SECTION -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider">Product Image *</label>
+                        <div class="flex space-x-2 text-xs">
+                            <button type="button" onclick="switchImageMode('upload')" id="btn-mode-upload" class="px-3 py-1 rounded-lg bg-cyan-500 text-slate-950 font-bold transition">Upload Image</button>
+                            <button type="button" onclick="switchImageMode('url')" id="btn-mode-url" class="px-3 py-1 rounded-lg bg-gray-800 text-gray-300 transition">Use Image URL</button>
+                        </div>
+                    </div>
+
+                    <!-- Mode A: Upload Area -->
+                    <div id="image-upload-container">
+                        <div id="drop-zone" 
+                             class="border-2 border-dashed border-gray-700 hover:border-cyan-500 rounded-2xl p-6 text-center cursor-pointer transition bg-gray-900/50 flex flex-col items-center justify-center relative min-h-[160px]"
+                             ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" onclick="document.getElementById('file-input').click()">
+                            
+                            <input type="file" id="file-input" accept="image/jpeg, image/png, image/webp" class="hidden" onchange="handleFileSelect(event)">
+                            
+                            <div id="upload-prompt" class="space-y-2">
+                                <div class="text-3xl">📷</div>
+                                <div class="text-sm font-semibold text-white">Upload Image</div>
+                                <div class="text-xs text-gray-400">Click or drag image here</div>
+                                <div class="text-[10px] text-cyan-400 font-mono tracking-wider">JPG • PNG • WEBP (Max 2MB)</div>
+                            </div>
+
+                            <div id="image-preview-wrapper" class="hidden w-full flex flex-col items-center space-y-3">
+                                <div class="relative w-full h-48 rounded-xl overflow-hidden border border-gray-700 bg-black">
+                                    <img id="image-preview" src="" alt="Preview" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex space-x-3">
+                                    <button type="button" onclick="event.stopPropagation(); document.getElementById('file-input').click()" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-700 transition">Replace Image</button>
+                                    <button type="button" onclick="event.stopPropagation(); removeUploadedImage()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-red-500/20 transition">Remove Image</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mode B: Image URL Input -->
+                    <div id="image-url-container" class="hidden space-y-3">
+                        <input type="url" id="form-image-url" placeholder="https://example.com/image.jpg" oninput="handleImageUrlInput(this.value)" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500">
+                        <div id="url-preview-wrapper" class="hidden w-full h-40 rounded-xl overflow-hidden border border-gray-700 bg-black relative">
+                            <img id="url-preview-img" src="" alt="URL Preview" class="w-full h-full object-cover" onerror="handleImageError()">
+                        </div>
+                    </div>
+                    <p id="err-image" class="text-red-400 text-xs mt-1 hidden">Please upload or provide a product image.</p>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" id="save-product-btn" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black py-3.5 px-6 rounded-xl transition shadow-xl shadow-cyan-500/20 flex items-center justify-center space-x-2 text-base">
+                        <span>💾 SAVE PRODUCT</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div id="delete-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-md rounded-3xl p-6 border border-gray-700 shadow-2xl text-center space-y-4">
+            <div class="text-4xl">⚠️</div>
+            <h3 class="text-xl font-bold text-white">Delete Product</h3>
+            <p class="text-gray-300 text-sm">Are you sure you want to delete this product?</p>
+            <div class="flex space-x-3 pt-2">
+                <button onclick="closeDeleteModal()" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-2.5 rounded-xl transition">Cancel</button>
+                <button onclick="confirmDeleteProduct()" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-semibold py-2.5 rounded-xl transition shadow-lg shadow-red-600/30">Delete</button>
             </div>
         </div>
     </div>
 
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 glass-card bg-slate-900/95 border border-cyan-500/30 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm">
+        <span id="toast-icon" class="text-cyan-400 text-lg">✓</span>
+        <span id="toast-msg">Product saved successfully!</span>
+    </div>
+
     <!-- Footer -->
-    <footer class="glass-panel border-t border-slate-800 mt-20 py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div class="space-y-4">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white font-bold">
-                        <i class="fa-solid fa-bolt"></i>
-                    </div>
-                    <span class="text-lg font-extrabold tracking-tight">loot-deals</span>
-                </div>
-                <p class="text-xs text-slate-400 leading-relaxed">
-                    Your ultimate destination for curated daily loot deals, smart shopping links, and verified offers across top e-commerce stores.
-                </p>
-            </div>
-            <div>
-                <h4 class="text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">Quick Links</h4>
-                <ul class="space-y-2 text-xs text-slate-400">
-                    <li><a href="#" onclick="switchView('home')" class="hover:text-sky-400">Home</a></li>
-                    <li><a href="#products-section" onclick="scrollToSection('products-section')" class="hover:text-sky-400">All Products</a></li>
-                    <li><a href="#" onclick="switchView('wishlist')" class="hover:text-sky-400">My Wishlist</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">Categories</h4>
-                <ul class="space-y-2 text-xs text-slate-400">
-                    <li><a href="#" onclick="filterByCategory('Electronics')" class="hover:text-sky-400">Electronics</a></li>
-                    <li><a href="#" onclick="filterByCategory('Fashion')" class="hover:text-sky-400">Fashion</a></li>
-                    <li><a href="#" onclick="filterByCategory('Gadgets')" class="hover:text-sky-400">Gadgets</a></li>
-                    <li><a href="#" onclick="filterByCategory('Home')" class="hover:text-sky-400">Home & Living</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">Legal & Info</h4>
-                <ul class="space-y-2 text-xs text-slate-400">
-                    <li><a href="#" onclick="showInfoModal('About Us', 'loot-deals is a premier shopping discovery platform designed to bring you the best deals and offers.')" class="hover:text-sky-400">About</a></li>
-                    <li><a href="#" onclick="showInfoModal('Contact Us', 'Reach out to us via email at support@lootdeals.com for any queries.')" class="hover:text-sky-400">Contact</a></li>
-                    <li><a href="#" onclick="showInfoModal('Privacy Policy', 'We respect your privacy and do not collect unnecessary personal information.')" class="hover:text-sky-400">Privacy Policy</a></li>
-                    <li><a href="#" onclick="showInfoModal('Disclaimer', 'We earn through affiliate and partner links. Prices and offers are subject to change by respective merchants.')" class="hover:text-sky-400">Disclaimer</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
-            <p>&copy; 2026 loot-deals. All rights reserved.</p>
-            <p class="mt-2 sm:mt-0">Built with High-Performance Modern Web Tech.</p>
-        </div>
+    <footer class="border-t border-gray-800/80 py-6 text-center text-xs text-gray-500">
+        &copy; 2026 LOOT-DEALS • Smart Shopping & Admin System. All rights reserved.
     </footer>
 
-    <!-- Back to Top Button -->
-    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" id="back-to-top" class="fixed bottom-6 right-6 w-10 h-10 rounded-xl bg-sky-500 text-white shadow-lg flex items-center justify-center opacity-0 pointer-events-none transition-opacity z-30 hover:bg-sky-400">
-        <i class="fa-solid fa-arrow-up text-sm"></i>
-    </button>
-
-    <!-- JavaScript Application Logic -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // Admin Secret 6-Digit Password (Change '123456' to your own custom 6-digit pin if needed)
-        const ADMIN_PIN = "123456";
-
-        // Live product image preview
-        function previewProductImage(url) {
-            const previewBox = document.getElementById('image-preview-box');
-            const preview = document.getElementById('image-preview');
-            const error = document.getElementById('image-preview-error');
-
-            if (!previewBox || !preview || !error) return;
-
-            url = String(url || '').trim();
-
-            if (!url) {
-                previewBox.classList.add('hidden');
-                preview.src = '';
-                error.classList.add('hidden');
-                return;
-            }
-
-            previewBox.classList.remove('hidden');
-            error.classList.add('hidden');
-            preview.src = '';
-
-            preview.onload = function () {
-                error.classList.add('hidden');
-            };
-
-            preview.onerror = function () {
-                error.classList.remove('hidden');
-            };
-
-            preview.src = url;
-        }
-
-        function clearProductImagePreview() {
-            const input = document.getElementById('p-image');
-            if (input) input.value = '';
-            previewProductImage('');
-        }
-
-        // Initial Sample Products Data
         const defaultProducts = [
             {
-                id: "prod_1",
-                name: "Wireless ANC Headphones",
-                image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
-                description: "Premium active noise cancelling wireless headphones with deep bass and 40h battery.",
-                price: "₹1,499",
-                originalPrice: "₹3,999",
-                discount: "62% OFF",
-                rating: "4.6",
-                category: "Electronics",
-                productUrl: "https://example.com/product/headphones",
-                featured: true
+                id: '1',
+                name: 'Wireless ANC Headphones',
+                desc: 'Premium active noise cancelling wireless headphones with deep bass and 40h battery.',
+                price: '₹1499',
+                origPrice: '₹3999',
+                discount: '62% OFF',
+                category: 'Electronics',
+                rating: '4.6',
+                featured: true,
+                url: 'https://example.com/product/1',
+                image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80'
             },
             {
-                id: "prod_2",
-                name: "Smart Fitness Watch Pro",
-                image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80",
-                description: "Advanced AMOLED smartwatch with Bluetooth calling, health tracking, and sleek metal body.",
-                price: "₹2,199",
-                originalPrice: "₹4,999",
-                discount: "56% OFF",
-                rating: "4.8",
-                category: "Gadgets",
-                productUrl: "https://example.com/product/smartwatch",
-                featured: true
+                id: '2',
+                name: 'Smart Fitness Watch Pro',
+                desc: 'Advanced AMOLED smartwatch with Bluetooth calling, health tracking, and sleep monitor.',
+                price: '₹2199',
+                origPrice: '₹4999',
+                discount: '56% OFF',
+                category: 'Gadgets',
+                rating: '4.8',
+                featured: true,
+                url: 'https://example.com/product/2',
+                image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80'
             },
             {
-                id: "prod_3",
-                name: "Minimalist Casual Sneakers",
-                image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80",
-                description: "Ultra-comfortable lightweight running and casual sneakers designed for everyday street style.",
-                price: "₹899",
-                originalPrice: "₹2,499",
-                discount: "64% OFF",
-                rating: "4.4",
-                category: "Fashion",
-                productUrl: "https://example.com/product/sneakers",
-                featured: true
-            },
-            {
-                id: "prod_4",
-                name: "RGB Mechanical Gaming Keyboard",
-                image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80",
-                description: "Tactile mechanical switches with customizable RGB backlighting and durable aluminum chassis.",
-                price: "₹1,899",
-                originalPrice: "₹3,500",
-                discount: "45% OFF",
-                rating: "4.7",
-                category: "Electronics",
-                productUrl: "https://example.com/product/keyboard",
-                featured: true
+                id: '3',
+                name: 'Men Graphic Print T-Shirt',
+                desc: 'Axxitude Men Graphic Print Round Neck Polyester Black T-Shirt.',
+                price: '₹90',
+                origPrice: '₹699',
+                discount: '87% OFF',
+                category: 'Fashion',
+                rating: '3.6',
+                featured: true,
+                url: 'https://www.flipkart.com',
+                image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80'
             }
         ];
 
         let products = JSON.parse(localStorage.getItem('loot_deals_products')) || defaultProducts;
-        let wishlist = JSON.parse(localStorage.getItem('loot_deals_wishlist')) || [];
-        let recentlyViewed = JSON.parse(localStorage.getItem('loot_deals_recent')) || [];
-        let currentCategory = 'All';
-        let searchQuery = '';
+        let favorites = JSON.parse(localStorage.getItem('loot_deals_favorites')) || [];
+        let currentImageData = '';
+        let imageMode = 'upload';
+        let deleteTargetId = null;
 
-        const categories = ['All', 'Electronics', 'Fashion', 'Gadgets', 'Home', 'Beauty', 'Accessories', 'Other'];
-
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCategories();
-            renderProducts();
-            renderFeaturedProducts();
-            renderRecentlyViewed();
-            updateWishlistBadge();
-
-            window.addEventListener('scroll', () => {
-                const btt = document.getElementById('back-to-top');
-                if (window.scrollY > 400) {
-                    btt.classList.remove('opacity-0', 'pointer-events-none');
-                } else {
-                    btt.classList.add('opacity-0', 'pointer-events-none');
-                }
-            });
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAll();
         });
 
         function saveToStorage() {
-            localStorage.setItem('loot_deals_products', JSON.stringify(products));
-            localStorage.setItem('loot_deals_wishlist', JSON.stringify(wishlist));
-            localStorage.setItem('loot_deals_recent', JSON.stringify(recentlyViewed));
+            try {
+                localStorage.setItem('loot_deals_products', JSON.stringify(products));
+                localStorage.setItem('loot_deals_favorites', JSON.stringify(favorites));
+            } catch (e) {
+                showToast('Storage limit reached! Use smaller images or image URLs.', '⚠️');
+            }
         }
 
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `glass-panel px-4 py-3 rounded-2xl text-xs font-semibold flex items-center gap-3 shadow-2xl border ${type === 'success' ? 'border-emerald-500/40 text-emerald-300' : 'border-rose-500/40 text-rose-300'}`;
-            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-circle-exclamation text-rose-400'} text-sm"></i> <span>${message}</span>`;
-            container.appendChild(toast);
+        function switchTab(tabId) {
+            ['home', 'products', 'favorites', 'admin'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+            });
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            ['home', 'products', 'favorites'].forEach(t => {
+                const btn = document.getElementById(`nav-${t}`);
+                if(btn) btn.className = (t === tabId) ? "text-cyan-400 font-semibold transition" : "text-gray-300 hover:text-cyan-300 transition";
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if(tabId === 'admin') renderAdminTable();
+            if(tabId === 'products') renderPublicProducts();
+            if(tabId === 'home') renderHomeFeatured();
+            if(tabId === 'favorites') renderFavorites();
+        }
+
+        function renderHomeFeatured() {
+            const grid = document.getElementById('featured-products-grid');
+            const featuredList = products.filter(p => p.featured);
+            grid.innerHTML = featuredList.map(p => createProductCard(p)).join('');
+        }
+
+        function renderPublicProducts() {
+            const search = document.getElementById('public-search').value.toLowerCase();
+            const category = document.getElementById('public-category-filter').value;
+            
+            const filtered = products.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(search) || p.desc.toLowerCase().includes(search);
+                const matchCat = category === '' || p.category === category;
+                return matchSearch && matchCat;
+            });
+
+            const grid = document.getElementById('all-products-grid');
+            if(filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-500">No products found.</div>`;
+                return;
+            }
+            grid.innerHTML = filtered.map(p => createProductCard(p)).join('');
+        }
+
+        function renderFavorites() {
+            document.getElementById('fav-count').innerText = favorites.length;
+            const grid = document.getElementById('favorites-grid');
+            const favProducts = products.filter(p => favorites.includes(p.id));
+            if(favProducts.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-500">No favorite products added yet.</div>`;
+                return;
+            }
+            grid.innerHTML = favProducts.map(p => createProductCard(p)).join('');
+        }
+
+        function createProductCard(p) {
+            const isFav = favorites.includes(p.id);
+            return `
+                <div class="glass-card rounded-2xl overflow-hidden border border-gray-800 flex flex-col justify-between group transition hover:border-cyan-500/40 hover:shadow-2xl">
+                    <div class="relative w-full aspect-square bg-gray-900 overflow-hidden">
+                        <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="handleCardImageError(this)">
+                        ${p.discount ? `<span class="absolute top-3 left-3 bg-emerald-500 text-slate-950 font-extrabold text-[10px] px-2.5 py-1 rounded-full shadow-md">${p.discount}</span>` : ''}
+                        <button onclick="toggleFavorite('${p.id}')" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white transition hover:bg-black">
+                            ${isFav ? '❤️' : '🤍'}
+                        </button>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow justify-between space-y-3">
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-gray-400 mb-1">
+                                <span class="text-cyan-400 font-semibold">${p.category || 'General'}</span>
+                                ${p.rating ? `<span class="text-amber-400 font-semibold">★ ${p.rating}</span>` : ''}
+                            </div>
+                            <h3 class="font-bold text-white text-sm line-clamp-1">${p.name}</h3>
+                            <p class="text-gray-400 text-xs line-clamp-2 mt-1">${p.desc || ''}</p>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-gray-800">
+                            <div>
+                                <span class="text-lg font-black text-white">${p.price}</span>
+                                ${p.origPrice ? `<span class="text-xs text-gray-500 line-through ml-1.5">${p.origPrice}</span>` : ''}
+                            </div>
+                            <a href="${p.url}" target="_blank" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow-md shadow-cyan-500/20">Buy Now</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleCardImageError(imgElement) {
+            imgElement.onerror = null;
+            imgElement.parentElement.innerHTML = `
+                <div class="w-full h-full flex flex-col items-center justify-center bg-gray-900 text-gray-400 p-4 text-center">
+                    <span class="text-2xl mb-1">🖼️</span>
+                    <span class="text-xs font-semibold">Image unavailable</span>
+                </div>
+            `;
+        }
+
+        function toggleFavorite(id) {
+            if(favorites.includes(id)) {
+                favorites = favorites.filter(favId => favId !== id);
+                showToast('Removed from favorites', 'ℹ️');
+            } else {
+                favorites.push(id);
+                showToast('Added to favorites', '❤️');
+            }
+            saveToStorage();
+            renderAll();
+        }
+
+        function renderAdminTable() {
+            const search = document.getElementById('admin-search').value.toLowerCase();
+            const category = document.getElementById('admin-category-filter').value;
+
+            const filtered = products.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(search);
+                const matchCat = category === '' || p.category === category;
+                return matchSearch && matchCat;
+            });
+
+            const tbody = document.getElementById('admin-product-table-body');
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-500">No products found in admin inventory.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(p => `
+                <tr class="hover:bg-gray-800/40 transition">
+                    <td class="p-4">
+                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-gray-900 border border-gray-800">
+                            <img src="${p.image}" alt="" class="w-full h-full object-cover" onerror="handleCardImageError(this)">
+                        </div>
+                    </td>
+                    <td class="p-4 font-semibold text-white max-w-xs truncate">${p.name}</td>
+                    <td class="p-4 text-cyan-400 text-xs font-medium">${p.category}</td>
+                    <td class="p-4 font-bold text-white">${p.price}</td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${p.featured ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'bg-gray-800 text-gray-400'}">
+                            ${p.featured ? 'Featured' : 'Standard'}
+                        </span>
+                    </td>
+                    <td class="p-4"><span class="text-emerald-400 font-semibold text-xs">● Active</span></td>
+                    <td class="p-4 text-right space-x-2">
+                        <button onclick="openEditProductModal('${p.id}')" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 font-semibold px-3 py-1.5 rounded-lg text-xs transition border border-gray-700">Edit</button>
+                        <button onclick="openDeleteModal('${p.id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold px-3 py-1.5 rounded-lg text-xs transition border border-red-500/20">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAddProductModal() {
+            document.getElementById('modal-title').innerText = "Add New Product";
+            document.getElementById('product-form').reset();
+            document.getElementById('edit-product-id').value = '';
+            currentImageData = '';
+            switchImageMode('upload');
+            resetImageUI();
+            hideValidationErrors();
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function openEditProductModal(id) {
+            const p = products.find(item => item.id === id);
+            if(!p) return;
+            document.getElementById('modal-title').innerText = "Edit Product";
+            document.getElementById('edit-product-id').value = p.id;
+            document.getElementById('form-name').value = p.name;
+            document.getElementById('form-desc').value = p.desc || '';
+            document.getElementById('form-price').value = p.price;
+            document.getElementById('form-orig-price').value = p.origPrice || '';
+            document.getElementById('form-discount').value = p.discount || '';
+            document.getElementById('form-category').value = p.category || '';
+            document.getElementById('form-rating').value = p.rating || '';
+            document.getElementById('form-featured').checked = p.featured || false;
+            document.getElementById('form-url').value = p.url;
+            
+            currentImageData = p.image;
+            if(p.image.startsWith('http') && !p.image.startsWith('data:')) {
+                switchImageMode('url');
+                document.getElementById('form-image-url').value = p.image;
+                handleImageUrlInput(p.image);
+            } else {
+                switchImageMode('upload');
+                showPreview(p.image);
+            }
+
+            hideValidationErrors();
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+        }
+
+        function switchImageMode(mode) {
+            imageMode = mode;
+            if(mode === 'upload') {
+                document.getElementById('image-upload-container').classList.remove('hidden');
+                document.getElementById('image-url-container').classList.add('hidden');
+                document.getElementById('btn-mode-upload').className = "px-3 py-1 rounded-lg bg-cyan-500 text-slate-950 font-bold transition";
+                document.getElementById('btn-mode-url').className = "px-3 py-1 rounded-lg bg-gray-800 text-gray-300 transition";
+            } else {
+                document.getElementById('image-upload-container').classList.add('hidden');
+                document.getElementById('image-url-container').classList.remove('hidden');
+                document.getElementById('btn-mode-url').className = "px-3 py-1 rounded-lg bg-cyan-500 text-slate-950 font-bold transition";
+                document.getElementById('btn-mode-upload').className = "px-3 py-1 rounded-lg bg-gray-800 text-gray-300 transition";
+            }
+        }
+
+        function handleDragOver(e) { e.preventDefault(); e.stopPropagation(); }
+        function handleDragLeave(e) { e.preventDefault(); e.stopPropagation(); }
+        function handleDrop(e) {
+            e.preventDefault(); e.stopPropagation();
+            const files = e.dataTransfer.files;
+            if(files.length > 0) processFile(files[0]);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if(files.length > 0) processFile(files[0]);
+        }
+
+        function processFile(file) {
+            if(file.size > 2 * 1024 * 1024) {
+                showToast("Image size should be under 2MB for smooth storage.", "⚠️");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                currentImageData = event.target.result;
+                showPreview(currentImageData);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showPreview(src) {
+            document.getElementById('upload-prompt').classList.add('hidden');
+            const wrapper = document.getElementById('image-preview-wrapper');
+            wrapper.classList.remove('hidden');
+            document.getElementById('image-preview').src = src;
+        }
+
+        function removeUploadedImage() {
+            currentImageData = '';
+            resetImageUI();
+        }
+
+        function resetImageUI() {
+            document.getElementById('image-preview-wrapper').classList.add('hidden');
+            document.getElementById('upload-prompt').classList.remove('hidden');
+            document.getElementById('file-input').value = '';
+        }
+
+        function handleImageUrlInput(url) {
+            const wrapper = document.getElementById('url-preview-wrapper');
+            const img = document.getElementById('url-preview-img');
+            if(!url || !url.startsWith('http')) {
+                wrapper.classList.add('hidden');
+                return;
+            }
+            img.src = url;
+            wrapper.classList.remove('hidden');
+            currentImageData = url;
+        }
+
+        function handleImageError() {
+            document.getElementById('url-preview-wrapper').classList.add('hidden');
+            showToast("Failed to load image from URL.", "⚠️");
+        }
+
+        function handleSaveProduct(e) {
+            e.preventDefault();
+            hideValidationErrors();
+
+            const name = document.getElementById('form-name').value.trim();
+            const desc = document.getElementById('form-desc').value.trim();
+            const price = document.getElementById('form-price').value.trim();
+            const origPrice = document.getElementById('form-orig-price').value.trim();
+            const discount = document.getElementById('form-discount').value.trim();
+            const category = document.getElementById('form-category').value;
+            const rating = document.getElementById('form-rating').value.trim();
+            const featured = document.getElementById('form-featured').checked;
+            const url = document.getElementById('form-url').value.trim();
+            const editId = document.getElementById('edit-product-id').value;
+
+            // Sync image data if using URL mode
+            if(imageMode === 'url') {
+                currentImageData = document.getElementById('form-image-url').value.trim();
+            }
+
+            let isValid = true;
+            if(!name) { document.getElementById('err-name').classList.remove('hidden'); isValid = false; }
+            if(!category) { document.getElementById('err-category').classList.remove('hidden'); isValid = false; }
+            if(!url) { document.getElementById('err-url').classList.remove('hidden'); isValid = false; }
+            if(!currentImageData) { document.getElementById('err-image').classList.remove('hidden'); isValid = false; }
+
+            if(!isValid) return;
+
+            const saveBtn = document.getElementById('save-product-btn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = `<span>Saving product...</span>`;
+
             setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
+                if(editId) {
+                    products = products.map(p => p.id === editId ? {
+                        ...p, name, desc, price, origPrice, discount, category, rating, featured, url, image: currentImageData
+                    } : p);
+                } else {
+                    const newProduct = {
+                        id: Date.now().toString(),
+                        name, desc, price, origPrice, discount, category, rating, featured, url,
+                        image: currentImageData
+                    };
+                    products.unshift(newProduct);
+                }
+
+                saveToStorage();
+                renderAll();
+                closeProductModal();
+                showToast("✓ Product saved successfully!", "✓");
+
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = `<span>💾 SAVE PRODUCT</span>`;
+            }, 400);
+        }
+
+        function hideValidationErrors() {
+            ['err-name', 'err-category', 'err-url', 'err-image'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+        }
+
+        function openDeleteModal(id) {
+            deleteTargetId = id;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            deleteTargetId = null;
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
+
+        function confirmDeleteProduct() {
+            if(!deleteTargetId) return;
+            products = products.filter(p => p.id !== deleteTargetId);
+            saveToStorage();
+            renderAll();
+            closeDeleteModal();
+            showToast("Product deleted successfully", "🗑️");
+        }
+
+        function showToast(message, icon = '✓') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = message;
+            document.getElementById('toast-icon').innerText = icon;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
             }, 3000);
         }
 
-        // Secure Password Prompt for Admin Panel
-        function requestAdminAccess() {
-            const enteredPin = prompt("Enter 6-Digit Admin PIN to access dashboard:");
-            if (enteredPin === ADMIN_PIN) {
-                toggleAdminModal(true);
-                showToast("Admin access granted successfully!");
-            } else if (enteredPin !== null) {
-                showToast("Incorrect PIN! Access denied.", "error");
+        function renderAll() {
+            renderHomeFeatured();
+            renderPublicProducts();
+            renderFavorites();
+            if(!document.getElementById('tab-admin').classList.contains('hidden')) {
+                renderAdminTable();
             }
-        }
-
-        function switchView(viewName, productId = null) {
-            document.getElementById('view-home').classList.add('hidden');
-            document.getElementById('view-details').classList.add('hidden');
-            document.getElementById('view-wishlist').classList.add('hidden');
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            if (viewName === 'home') {
-                document.getElementById('view-home').classList.remove('hidden');
-                renderProducts();
-            } else if (viewName === 'details' && productId) {
-                document.getElementById('view-details').classList.remove('hidden');
-                renderProductDetails(productId);
-            } else if (viewName === 'wishlist') {
-                document.getElementById('view-wishlist').classList.remove('hidden');
-                renderWishlist();
-            }
-        }
-
-        function renderCategories() {
-            const container = document.getElementById('category-filters');
-            container.innerHTML = categories.map(cat => `
-                <button onclick="filterByCategory('${cat}')" class="px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${currentCategory === cat ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/25' : 'glass-panel text-slate-300 hover:bg-slate-800'}">
-                    ${cat}
-                </button>
-            `).join('');
-        }
-
-        function filterByCategory(cat) {
-            currentCategory = cat;
-            renderCategories();
-            document.getElementById('section-title').innerText = cat === 'All' ? 'All Latest Products' : `${cat} Deals`;
-            renderProducts();
-        }
-
-        function handleSearch(query) {
-            searchQuery = query.toLowerCase().trim();
-            renderProducts();
-            if(document.getElementById('view-home').classList.contains('hidden')) {
-                switchView('home');
-            }
-        }
-
-        function handleSort(sortType) {
-            renderProducts(sortType);
-        }
-
-        function renderFeaturedProducts() {
-            const container = document.getElementById('featured-products-grid');
-            const featured = products.filter(p => p.featured);
-            if (featured.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 col-span-full">No featured products currently available.</p>`;
-                return;
-            }
-            container.innerHTML = featured.map(p => createProductCardHTML(p)).join('');
-        }
-
-        function renderProducts(sortType = 'default') {
-            const container = document.getElementById('products-grid');
-            const emptyState = document.getElementById('empty-state');
-
-            let filtered = products.filter(p => {
-                const matchesCat = currentCategory === 'All' || p.category === currentCategory;
-                const matchesSearch = p.name.toLowerCase().includes(searchQuery) || 
-                                      p.description.toLowerCase().includes(searchQuery) || 
-                                      p.category.toLowerCase().includes(searchQuery);
-                return matchesCat && matchesSearch;
-            });
-
-            if (sortType === 'price-low') {
-                filtered.sort((a, b) => {
-                    const priceA = parseFloat(String(a.price || '0').replace(/[^\d.]/g, '')) || 0;
-                    const priceB = parseFloat(String(b.price || '0').replace(/[^\d.]/g, '')) || 0;
-                    return priceA - priceB;
-                });
-            } else if (sortType === 'price-high') {
-                filtered.sort((a, b) => {
-                    const priceA = parseFloat(String(a.price || '0').replace(/[^\d.]/g, '')) || 0;
-                    const priceB = parseFloat(String(b.price || '0').replace(/[^\d.]/g, '')) || 0;
-                    return priceB - priceA;
-                });
-            } else if (sortType === 'rating') {
-                filtered.sort((a, b) => parseFloat(b.rating || 0) - parseFloat(a.rating || 0));
-            }
-
-            if (filtered.length === 0) {
-                container.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-            container.innerHTML = filtered.map(p => createProductCardHTML(p)).join('');
-        }
-
-        function createProductCardHTML(p) {
-            const isWishlisted = wishlist.some(item => item.id === p.id);
-            return `
-                <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between group relative">
-                    <button onclick="toggleWishlist('${p.id}', event)" class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-slate-900/80 backdrop-blur-md flex items-center justify-center text-slate-300 hover:text-rose-500 transition-colors">
-                        <i class="fa-${isWishlisted ? 'solid text-rose-500' : 'regular'} fa-heart"></i>
-                    </button>
-
-                    <div class="relative aspect-square overflow-hidden bg-slate-900 cursor-pointer" onclick="openProductDetails('${p.id}')">
-                        <img src="${p.image}" alt="${p.name}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                        ${p.discount ? `<span class="absolute bottom-3 left-3 bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-extrabold px-2.5 py-1 rounded-lg">${p.discount}</span>` : ''}
-                    </div>
-
-                    <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
-                        <div class="space-y-1.5 cursor-pointer" onclick="openProductDetails('${p.id}')">
-                            <div class="flex items-center justify-between text-[11px] text-slate-400">
-                                <span class="text-sky-400 font-semibold">${p.category}</span>
-                                ${p.rating ? `<span class="flex items-center gap-1 text-amber-400"><i class="fa-solid fa-star text-[10px]"></i> ${p.rating}</span>` : ''}
-                            </div>
-                            <h3 class="font-bold text-sm text-slate-100 line-clamp-1 group-hover:text-sky-400 transition-colors">${p.name}</h3>
-                            <p class="text-xs text-slate-400 line-clamp-2">${p.description}</p>
-                        </div>
-
-                        <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
-                            <div>
-                                <span class="text-sm font-extrabold text-emerald-400">${p.price || ''}</span>
-                                ${p.originalPrice ? `<span class="text-[10px] text-slate-500 line-through ml-1.5">${p.originalPrice}</span>` : ''}
-                            </div>
-                            <a href="${p.productUrl}" target="_blank" rel="noopener noreferrer" onclick="trackClick('${p.id}')" class="px-3.5 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white rounded-xl text-xs font-bold shadow-md shadow-sky-500/20 transition-all flex items-center gap-1.5">
-                                Buy Now <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function openProductDetails(id) {
-            const product = products.find(p => p.id === id);
-            if (!product) return;
-
-            recentlyViewed = recentlyViewed.filter(p => p.id !== id);
-            recentlyViewed.unshift(product);
-            if (recentlyViewed.length > 4) recentlyViewed.pop();
-            saveToStorage();
-            renderRecentlyViewed();
-
-            switchView('details', id);
-        }
-
-        function renderProductDetails(id) {
-            const p = products.find(p => p.id === id);
-            const container = document.getElementById('product-details-content');
-            if (!p) return;
-
-            const isWishlisted = wishlist.some(item => item.id === p.id);
-
-            container.innerHTML = `
-                <div class="relative aspect-square rounded-2xl overflow-hidden bg-slate-900 border border-slate-800">
-                    <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover">
-                    ${p.discount ? `<span class="absolute top-4 left-4 bg-emerald-500 text-white text-xs font-extrabold px-3 py-1 rounded-xl shadow-lg">${p.discount}</span>` : ''}
-                </div>
-                <div class="flex flex-col justify-between space-y-6">
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold uppercase tracking-wider text-sky-400 bg-sky-500/10 px-3 py-1 rounded-full">${p.category}</span>
-                            ${p.rating ? `<span class="flex items-center gap-1 text-amber-400 text-sm font-semibold"><i class="fa-solid fa-star"></i> ${p.rating} Rating</span>` : ''}
-                        </div>
-                        <h1 class="text-2xl sm:text-3xl font-extrabold text-white">${p.name}</h1>
-                        <p class="text-slate-300 text-sm leading-relaxed">${p.description}</p>
-                        <div class="flex items-baseline gap-3 pt-2">
-                            <span class="text-3xl font-extrabold text-emerald-400">${p.price || ''}</span>
-                            ${p.originalPrice ? `<span class="text-sm text-slate-500 line-through">${p.originalPrice}</span>` : ''}
-                        </div>
-                    </div>
-
-                    <div class="space-y-3 pt-4 border-t border-slate-800">
-                        <a href="${p.productUrl}" target="_blank" rel="noopener noreferrer" onclick="trackClick('${p.id}')" class="w-full py-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold shadow-xl shadow-sky-500/30 flex items-center justify-center gap-2 transition-all">
-                            <i class="fa-solid fa-cart-shopping"></i> View Product / Buy Now <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                        </a>
-                        <button onclick="toggleWishlist('${p.id}')" class="w-full py-3 rounded-xl glass-panel hover:bg-slate-800 font-semibold text-sm flex items-center justify-center gap-2 transition-colors">
-                            <i class="fa-${isWishlisted ? 'solid text-rose-500' : 'regular'} fa-heart"></i> ${isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderRecentlyViewed() {
-            const container = document.getElementById('recently-viewed-container');
-            const grid = document.getElementById('recently-viewed-grid');
-            if (recentlyViewed.length === 0) {
-                container.classList.add('hidden');
-                return;
-            }
-            container.classList.remove('hidden');
-            grid.innerHTML = recentlyViewed.map(p => createProductCardHTML(p)).join('');
-        }
-
-        function toggleWishlist(id, event) {
-            if (event) event.stopPropagation();
-            const product = products.find(p => p.id === id);
-            const index = wishlist.findIndex(item => item.id === id);
-
-            if (index > -1) {
-                wishlist.splice(index, 1);
-                showToast('Removed from wishlist', 'error');
-            } else {
-                wishlist.push(product);
-                showToast('Added to wishlist successfully!');
-            }
-            saveToStorage();
-            updateWishlistBadge();
-            renderProducts();
-            renderFeaturedProducts();
-            if (!document.getElementById('view-wishlist').classList.contains('hidden')) {
-                renderWishlist();
-            }
-        }
-
-        function updateWishlistBadge() {
-            const badge = document.getElementById('wishlist-badge');
-            if (wishlist.length > 0) {
-                badge.innerText = wishlist.length;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-        }
-
-        function renderWishlist() {
-            const grid = document.getElementById('wishlist-grid');
-            if (wishlist.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-400">Your wishlist is empty.</div>`;
-                return;
-            }
-            grid.innerHTML = wishlist.map(p => createProductCardHTML(p)).join('');
-        }
-
-        function trackClick(id) {
-            showToast('Redirecting securely to product page...', 'success');
-        }
-
-        function toggleAdminModal(show) {
-            const modal = document.getElementById('admin-modal');
-            if (show) {
-                modal.classList.remove('hidden');
-                resetProductForm();
-            } else {
-                modal.classList.add('hidden');
-            }
-        }
-
-        function resetProductForm() {
-            document.getElementById('product-form').reset();
-            document.getElementById('edit-product-id').value = '';
-            document.getElementById('form-submit-btn').innerText = 'Save Product';
-            document.getElementById('admin-modal-title').innerText = 'Admin Dashboard (Secured)';
-            document.getElementById('product-form-container').classList.remove('hidden');
-            document.getElementById('admin-products-list').classList.add('hidden');
-            clearProductImagePreview();
-        }
-
-        function handleProductFormSubmit(event) {
-            event.preventDefault();
-
-            const editId = document.getElementById('edit-product-id').value;
-            const name = document.getElementById('p-name').value.trim();
-            const category = document.getElementById('p-category').value;
-            const image = document.getElementById('p-image').value.trim();
-            const description = document.getElementById('p-desc').value.trim();
-            const price = document.getElementById('p-price').value.trim();
-            const originalPrice = document.getElementById('p-orig-price').value.trim();
-            const discount = document.getElementById('p-discount').value.trim();
-            const rating = document.getElementById('p-rating').value.trim();
-            const productUrl = document.getElementById('p-url').value.trim();
-            const featured = document.getElementById('p-featured').checked;
-
-            try {
-                new URL(image);
-                new URL(productUrl);
-            } catch (_) {
-                showToast('Please enter valid URLs.', 'error');
-                return;
-            }
-
-            if (editId) {
-                products = products.map(p => p.id === editId ? {
-                    ...p, name, category, image, description, price, originalPrice, discount, rating, productUrl, featured
-                } : p);
-                showToast('Product updated successfully!');
-            } else {
-                const newProduct = {
-                    id: 'prod_' + Date.now(),
-                    name, category, image, description, price, originalPrice, discount, rating, productUrl, featured
-                };
-                products.unshift(newProduct);
-                showToast('Product added successfully!');
-            }
-
-            saveToStorage();
-            renderProducts();
-            renderFeaturedProducts();
-            toggleAdminModal(false);
-        }
-
-        function renderAdminProductsList(query = '') {
-            const container = document.getElementById('admin-items-container');
-            const q = query.toLowerCase().trim();
-            const filtered = products.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
-
-            if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No products found.</p>`;
-                return;
-            }
-
-            container.innerHTML = filtered.map(p => `
-                <div class="glass-panel p-3 rounded-xl flex items-center justify-between gap-4 text-xs">
-                    <div class="flex items-center gap-3 overflow-hidden">
-                        <img src="${p.image}" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">
-                        <div class="truncate">
-                            <h4 class="font-bold text-white truncate">${p.name}</h4>
-                            <span class="text-sky-400">${p.category} | ${p.price || 'N/A'}</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 flex-shrink-0">
-                        <button onclick="loadProductForEdit('${p.id}')" class="px-3 py-1.5 bg-sky-500/20 text-sky-400 hover:bg-sky-500 hover:text-white rounded-lg font-semibold transition-colors">Edit</button>
-                        <button onclick="deleteProduct('${p.id}')" class="px-3 py-1.5 bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white rounded-lg font-semibold transition-colors">Delete</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function loadProductForEdit(id) {
-            const p = products.find(item => item.id === id);
-            if (!p) return;
-
-            document.getElementById('edit-product-id').value = p.id;
-            document.getElementById('p-name').value = p.name;
-            document.getElementById('p-category').value = p.category;
-            document.getElementById('p-image').value = p.image;
-            previewProductImage(p.image);
-            document.getElementById('p-desc').value = p.description;
-            document.getElementById('p-price').value = p.price || '';
-            document.getElementById('p-orig-price').value = p.originalPrice || '';
-            document.getElementById('p-discount').value = p.discount || '';
-            document.getElementById('p-rating').value = p.rating || '';
-            document.getElementById('p-url').value = p.productUrl;
-            document.getElementById('p-featured').checked = p.featured;
-
-            document.getElementById('admin-modal-title').innerText = 'Edit Product: ' + p.name;
-            document.getElementById('form-submit-btn').innerText = 'Update Product';
-            document.getElementById('product-form-container').classList.remove('hidden');
-            document.getElementById('admin-products-list').classList.add('hidden');
-        }
-
-        function deleteProduct(id) {
-            if (confirm('Are you sure you want to delete this product?')) {
-                products = products.filter(p => p.id !== id);
-                wishlist = wishlist.filter(p => p.id !== id);
-                saveToStorage();
-                renderProducts();
-                renderFeaturedProducts();
-                updateWishlistBadge();
-                renderAdminProductsList();
-                showToast('Product deleted successfully', 'error');
-            }
-        }
-
-        function resetFilters() {
-            currentCategory = 'All';
-            searchQuery = '';
-            document.getElementById('global-search').value = '';
-            document.getElementById('mobile-search').value = '';
-            renderCategories();
-            renderProducts();
-        }
-
-        function scrollToSection(id) {
-            const el = document.getElementById(id);
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function showInfoModal(title, text) {
-            alert(`${title}\n\n${text}`);
         }
     </script>
 </body>
